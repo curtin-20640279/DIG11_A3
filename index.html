@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap');</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, intial-scale=1">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ccircle%20cx='50'%20cy='50'%20r='50'%20fill='white'%20/%3E%3Ctext%20y='0.9em'%20font-size='90'%3E%3C/text%3E%3C/svg%3E">
+<style>
+  body, html
+  {
+    background:#777;
+    border:0;
+    margin:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    font-family:'Roboto Slab', cursive;
+    user-select:none;
+  }
+  #settingsA, #backToMain
+  {
+    position:absolute;
+    top:5px;
+    right:15px;
+    text-decoration:none;
+    color:white;
+    font-size:35px;
+    line-height:35px;
+    text-shadow:white 0 0 4px;
+    mix-blend-mode:difference;
+  }
+  #backToMain
+  {
+    left:20px;
+    top:12px;
+    background:rgba(255,255,255,0.2);
+    width:35px;
+    padding:4px;
+    border-radius:100%;
+    text-align:center;
+  }
+  h1
+  {
+    text-align:center;
+  }
+  main, #background
+  {
+    width:400px;
+    height:800px;
+    margin:auto;
+    position:relative;
+    border:1px solid black;
+    overflow:hidden;
+    z-index:0;
+    color:white;
+  }
+  #background
+  {
+    position:absolute;
+  }
+  input[type="range"]
+  {
+    width:100%;
+  }
+  .switch
+  {
+    position:relative;
+    display:inline-block;
+    width:60px;
+    height:34px;
+  }
+  .switch input
+  {
+    opacity:0;
+    width:0;
+    height:0;
+  }
+  .slider
+  {
+    position:absolute;
+    cursor:pointer;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
+    background-color:#ccc;
+    transition:.4s;
+  }
+  .slider:before
+  {
+    position:absolute;
+    content:"";
+    height:26px;
+    width:26px;
+    left:4px;
+    bottom:4px;
+    background-color:white;
+    transition:.4s;
+  }
+  input:checked + .slider
+  {
+    background-color:#2196F3;
+  }
+  input:focus + .slider
+  {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  input:checked + .slider:before
+  {
+    transform:translateX(26px);
+  }
+  .slider.round
+  {
+    border-radius:34px;
+  }
+  .slider.round:before
+  {
+    border-radius:50%;
+  }
+  #settings label
+  {
+    margin-left:5px;
+  }
+  .settingItem
+  {
+    display:flex;
+    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,0.5);
+    padding:4px;
+  }
+  fieldset
+  {
+    position:absolute;
+    width:calc(100% - 30px);
+    height:calc(800px/3);
+    margin:5px;
+    border-radius:10px;
+    background:rgba(128,128,128,0.4);
+    padding:10px;
+    border:0;
+  }
+  .cross
+  {
+    background:rgba(0,0,0,0.4);
+    position:absolute;
+    border-radius:20px;
+    box-shadow:black 0 0 4px 0px inset;
+  }
+  .background
+  {
+    width:100%;
+    height:100%;
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:-2;
+    animation-name:drift;
+    animation-iteration-count:infinite;
+    animation-timing-function:linear;
+  }
+  .background:nth-child(1)
+  {
+    width:300%;
+    height:300%;
+    animation-name:drift2;
+    animation-direction:alternate-reverse;
+  }
+  .background:nth-child(1).animated
+  {
+    animation-duration:79s;
+  }
+  .background:nth-child(2)
+  {
+    width:400%;
+    height:400%;
+    z-index:-1;
+    mix-blend-mode:difference;
+    animation-direction:alternate;
+  }
+  .background:nth-child(2).animated
+  {
+    animation-duration:59s;
+  }
+  @keyframes drift2
+  {
+    0% {left:0; top:0;}
+    25% {left:-100%; top:0;}
+    50% {left:-100%; top:-100%;}
+    75% {left:-200%; top:-200%;}
+    100% {left:-200%; top:-200%;}
+  }
+  @keyframes drift
+  {
+    from {left:0; top:0;}
+    to {left:-300%; top:-300%;}
+  }
+fieldset legend
+{
+  text-shadow:black 0 0 5px;
+  color:white;
+}
+</style>
+  </head>
+  <body>
+    <div id="background">
+      <img class="background" src="dig11_a3_background.png">
+      <img class="background" src="dig11_a3_background.png">
+    </div>
+    <main>
+      <section>
+      </section>
+      <section>
+      </section>
+    </main>
+<script>
+var movingButtons={  primary:{down:false, x:0, y:0, div:false, command:{up:'Next Task Category', left:'Search', right:'Calendar', down:'Start Pomodoro', center:'Add Task'}},
+  task:{down:false, x:0, y:0, div:false, command:{up:'Edit Task', left:'Next Task', right:'Previous Task', down:'Remove Task', center:'Current Task'}}
+};
+
+loadVisuals();
+loadStyles();
+//showMain();
+showSettings();
+
+function loadStyles()
+{
+  var style=document.querySelector('#customStyles');
+  if(!style)
+  {
+    style=document.createElement('style');
+    style.id='customStyles';
+    document.head.appendChild(style);
+  }
+  style.innerHTML=window.localStorage.customStyles?window.localStorage.customStyles:'';
+}
+
+function showSettings()
+{
+  var m=document.querySelector('main');
+  m.innerHTML=`<div id='settings'><a id="backToMain" href="javascript:showMain();">&larr;</a><h1>Settings</h1></div>`;
+  var div=m.querySelector('div');
+  var section=document.createElement('section');
+  div.appendChild(section);
+  var fieldset=document.createElement('fieldset');
+  section.appendChild(fieldset);
+  var visuals=window.localStorage.visualSettings?JSON.parse(window.localStorage.visualSettings):{hue:0, inverted:false, animated:true};
+  fieldset.innerHTML=`<legend>Visual</legend>
+<div class="settingItem">
+  <label for="hue" style="text-align:center;">Hue ${visuals.hue}</label><input type='range' value=${visuals.hue} min=0 max=359 id="hue">
+</div>
+<div class="settingItem">
+<label class="switch"><input id='invert' type="checkbox" ${visuals.inverted?'checked':''}><span class="slider round"></span></label><label for="invert">Light Mode</label>
+</div>
+<div class="settingItem">
+<label class="switch"><input id='animate' type="checkbox" ${visuals.animated?'checked':''}><span class="slider round"></span></label><label for="animate">Animate Background</label>
+</div>`;
+
+  var hue=document.querySelector('#hue');
+  hue.addEventListener('input', changeVisual);
+  document.querySelector('#invert').addEventListener('change', changeVisual);
+  document.querySelector('#animate').addEventListener('change', changeVisual);
+}
+
+function changeVisual()
+{
+  var hue=document.querySelector('#hue').value;
+  var label=document.querySelector('label[for="hue"]');
+  label.innerHTML='Hue '+hue;
+  var inverted=document.querySelector('#invert').checked;
+  var animated=document.querySelector('#animate').checked;
+  window.localStorage.visualSettings=JSON.stringify({hue:hue, inverted:inverted, animated:animated});
+
+  loadVisuals();
+}
+
+function loadVisuals()
+{
+  var visuals=window.localStorage.visualSettings?JSON.parse(window.localStorage.visualSettings):{hue:0, inverted:false, animated:true};
+
+  document.body.parentNode.setAttribute('style', 'filter:hue-rotate('+visuals.hue+'deg)'+(visuals.inverted?' invert()':'')+';');
+
+  Array.from(document.querySelectorAll('#background img')).map(m=>m.classList.toggle('animated', visuals.animated));
+}
+
+function showMain()
+{
+  var m=document.querySelector('main');
+  m.innerHTML=`<a id="settingsA" href="javascript:showSettings();">&#9881;</a>`;
+  var fieldset=document.createElement('fieldset');
+  m.appendChild(fieldset);
+  fieldset.setAttribute('style', 'top:calc(800px*0.11);');
+  fieldset.innerHTML='<legend>Current Task</legend>';
+  var div=document.createElement('div');
+  div.setAttribute('class', 'cross');
+  fieldset.appendChild(div);
+  div.setAttribute('style', 'width:35px; height:calc(100% - 30px); top:15px; left:calc(50% - 17.5px);');
+  var div=document.createElement('div');
+  div.setAttribute('class', 'cross');
+  fieldset.appendChild(div);
+  div.setAttribute('style', 'height:35px; width:calc(100% - 30px); left:15px; top:calc(50% - 17.5px);');
+  var div=document.createElement('div');
+  fieldset.appendChild(div);
+  div.id='taskButton';
+  var placement={top:'calc(25% - 10px)', left:'calc(25% - 10px)'};
+  div.setAttribute('topLeft', JSON.stringify(placement));
+  div.setAttribute('style', 'width:50%; height:50%; border: 0; box-shadow:black 0 0 5px; position:absolute; padding:10px; top:'+placement.top+'; left:'+placement.left+'; border-radius:10px; background:rgb(67,67,67);');
+  div.addEventListener('mousedown', function(e) { movingButtons.task.down=true;  movingButtons.task.x=e.pageX; movingButtons.task.y=e.pageY;});
+  //div.addEventListener('mouseup', function(e) { movingButtons.task.down=false; });
+  movingButtons.task.div=div;
+  //div.addEventListener('mousemove', move.bind(undefined, div, 'task'));
+
+  var fieldset=document.createElement('fieldset');
+  m.appendChild(fieldset);
+  fieldset.innerHTML='<legend>Add Task</legend>';
+  fieldset.setAttribute('style', 'top:calc(800px*0.55);');
+  var div=document.createElement('div');
+  div.setAttribute('class', 'cross');
+  fieldset.appendChild(div);
+  div.setAttribute('style', 'width:35px; height:calc(100% - 30px); top:15px; left:calc(50% - 17.5px);');
+  var div=document.createElement('div');
+  div.setAttribute('class', 'cross');
+  fieldset.appendChild(div);
+  div.setAttribute('style', 'height:35px; width:calc(100% - 30px); left:15px; top:calc(50% - 17.5px);');
+  var div=document.createElement('div');
+  fieldset.appendChild(div);
+  div.id='primaryButton';
+  var placement={top:'calc(25%)', left:'calc(25%)'};
+  div.setAttribute('topLeft', JSON.stringify(placement));
+  div.setAttribute('style', 'width:50%; height:50%; background:rgb(67,67,67); border-radius:100%; top:'+placement.top+'; left:'+placement.left+'; position:absolute; box-shadow:black 0 0 3px;');
+  div.addEventListener('mousedown', function(e) { movingButtons.primary.down=true; movingButtons.primary.x=e.pageX; movingButtons.primary.y=e.pageY; e.preventDefault(); });
+  //div.addEventListener('mouseup', function(e) { movingButtons.primary.down=false; movingButtons.primary.div.style.top=placement.top; movingButtons.primary.div.style.left=placement.left;});
+  movingButtons.primary.div=div;
+  //div.addEventListener('mousemove', move.bind(undefined, div, 'primary'));
+}
+
+document.body.parentNode.addEventListener('mousemove', move1);
+document.body.parentNode.addEventListener('mouseup', resetButtons);
+
+function resetButtons()
+{
+  try
+  {
+    Object.keys(movingButtons).forEach(button => {
+      var button=movingButtons[button];
+      button.down=false;
+      var placement=JSON.parse(button.div.getAttribute('topLeft'));
+      button.div.style.top=placement.top;
+      button.div.style.left=placement.left;
+      var legend=button.div.parentNode.querySelector('legend');
+      legend.innerHTML=button.command.center;
+    });
+  } catch(e){}
+}
+
+function move1(e)
+{
+  try
+  {
+    if(movingButtons.primary.down)
+    {
+      e.preventDefault();
+      move(movingButtons.primary, e);
+    }
+    if(movingButtons.task.down)
+    {
+      e.preventDefault();
+      move(movingButtons.task, e);
+    }
+  }
+  catch(e){}
+}
+
+function move(button, e)
+{
+  if(button.down)
+  {
+    var x=button.x-e.pageX;
+    var y=button.y-e.pageY;
+    var div=button.div;
+    var maxHeight=Math.floor((div.parentNode.querySelector('div').clientHeight-div.clientHeight)/2);
+    var maxWidth=Math.floor((div.parentNode.querySelector('div:nth-child(3)').clientWidth-div.clientWidth)/2);
+
+    if(x>maxWidth) x=maxWidth;
+    if(x < -maxWidth) x=-maxWidth;
+    if(y>maxHeight) y=maxHeight;
+    if(y < -maxHeight) y=-maxHeight;
+    var topLeft=JSON.parse(div.getAttribute('topLeft'));
+
+    var legend=button.div.parentNode.querySelector('legend');
+    if(Math.abs(y) > Math.abs(x))
+    {
+      div.style.top=topLeft.top.split(')')[0]+' - '+y+'px';
+      div.style.left=topLeft.left;
+      if(y>maxHeight/2)
+      {
+        legend.innerHTML=button.command.up;
+      } else if(y<-maxHeight/2)
+      {
+        legend.innerHTML=button.command.down;
+      }
+      else
+      {
+        legend.innerHTML=button.command.center;
+      }
+    }
+    else
+    {
+      div.style.left=topLeft.left.split(')')[0]+' - '+x+'px';
+      div.style.top=topLeft.top;
+
+      if(x>maxWidth/2)
+      {
+        legend.innerHTML=button.command.left;
+      } else if(x<-maxWidth/2)
+      {
+        legend.innerHTML=button.command.right;
+      }
+      else
+      {
+        legend.innerHTML=button.command.center;
+      }
+    }
+    e.preventDefault();
+  }
+}
+</script>
+  </body>
+</html>
